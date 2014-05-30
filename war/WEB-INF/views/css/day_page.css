@@ -1,0 +1,32 @@
+@CHARSET "UTF-8";
+
+body {
+	text-align: center;
+}
+
+.main_container {
+	margin: 0 auto;
+	background-color: #2277ff;
+}
+
+.left_page {
+	margin: 8px;
+	padding: 16px;
+	width: 40%;
+	height: 1000px;
+	background-color: #dcdcdc;
+	display: inline-block;
+}
+
+.right_page {
+	margin: 8px;
+	padding: 16px;
+	width: 40%;
+	height: 1000px;
+	background-color: #efefef;
+	display: inline-block;
+}
+
+.content {
+	text-align: left;
+}

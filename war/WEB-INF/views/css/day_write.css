@@ -1,0 +1,33 @@
+@CHARSET "UTF-8";
+
+body {
+	text-align: center;
+}
+
+.main_container {
+	margin: 0 auto;
+	background-color: #2277ff;
+}
+
+.weather {
+	background-color: #2277ff;
+}
+
+.subject {
+	padding: 16px;
+	width: 60%;
+	font-size: x-large;
+	background: clear;
+	background-color: #0055cc;
+	border: 0;
+}
+
+.content {
+	padding: 16px;
+	width: 60%;
+	height: 2000px;
+	font-size: large;
+	background: clear;
+	background-color: #0055cc;
+	border: 0;
+}

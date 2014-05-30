@@ -7,6 +7,10 @@
         http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd"
 	default-autowire="byName">
 
+	<mvc:annotation-driven />
+
+	<mvc:default-servlet-handler />
+
 	<bean id="DaybookController" class="nixgon.daybook.DaybookController" />
 
 	<bean
@@ -17,4 +21,8 @@
 	<bean id="viewResolver"
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver"
 		p:prefix="/WEB-INF/views/" p:suffix=".jsp" />
+		
+	<!-- Static files -->
+	<mvc:resources location="/WEB-INF/views/css/" mapping="/css/**"/>
+	<mvc:resources location="/WEB-INF/views/js/" mapping="/js/**"/>
 </beans>
