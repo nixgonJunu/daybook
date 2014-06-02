@@ -59,7 +59,7 @@ public class DaybookController {
 
 		if ( user != null ) {
 			nickname = user.getNickname();
-			if (nickname.indexOf( "@" ) > 0) {
+			if ( nickname.indexOf( "@" ) > 0 ) {
 				nickname = nickname.substring( 0, nickname.indexOf( "@" ) );
 			}
 		}
@@ -68,12 +68,12 @@ public class DaybookController {
 		model.addAttribute( "yesterday", yesterday );
 		model.addAttribute( "nickname", nickname );
 		model.addAttribute( "logout_url", userService.createLogoutURL( "../login" ) );
-		
+
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Query qToday = pm.newQuery( Daybook.class );
-		qToday.setFilter( "date == '" + today + "'");
+		qToday.setFilter( "date == '" + today + "'" );
 		Query qYesterday = pm.newQuery( Daybook.class );
-		qYesterday.setFilter( "date == '" + yesterday  + "'");
+		qYesterday.setFilter( "date == '" + yesterday + "'" );
 
 		List < Daybook > resultToday = null;
 		List < Daybook > resultYesterday = null;
@@ -98,7 +98,7 @@ public class DaybookController {
 			qYesterday.closeAll();
 			pm.close();
 		}
-
+		
 		return "day_page";
 	}
 
@@ -110,7 +110,9 @@ public class DaybookController {
 
 		if ( user != null ) {
 			nickname = user.getNickname();
-			nickname = nickname.substring( 0, nickname.indexOf( "@" ) );
+			if ( nickname.indexOf( "@" ) > 0 ) {
+				nickname = nickname.substring( 0, nickname.indexOf( "@" ) );
+			}
 		}
 
 		model.addAttribute( "date", date );
@@ -148,67 +150,82 @@ public class DaybookController {
 		return new ModelAndView( "redirect:../day_page" );
 	}
 
-	// @RequestMapping(value = "/modify/{name}", method = RequestMethod.GET)
-	// public String getUpdateDaybookPage( @PathVariable String name,
-	// HttpServletRequest reqeust, ModelMap model ) {
-	// PersistenceManager pm = PMF.get().getPersistenceManager();
-	//
-	// Query q = pm.newQuery( Daybook.class );
-	// q.setFilter( "name == nameParameter" );
-	// q.setOrdering( "date desc" );
-	// q.declareParameters( "String nameParameter" );
-	//
-	// try {
-	// List < Daybook > results = (List < Daybook >) q.execute( name );
-	//
-	// if ( results.isEmpty() ) {
-	// model.addAttribute( "Daybook", null );
-	// } else {
-	// model.addAttribute( "Daybook", results.get( 0 ) );
-	// }
-	// } finally {
-	// q.closeAll();
-	// pm.close();
-	// }
-	//
-	// return "modify";
-	// }
-	//
-	// @RequestMapping(value = "/modify", method = RequestMethod.POST)
-	// public ModelAndView update( HttpServletRequest request, ModelMap model )
-	// {
-	// String author = request.getParameter( "author" );
-	// String weather = request.getParameter( "weather" );
-	// String key = request.getParameter( "key" );
-	//
-	// PersistenceManager pm = PMF.get().getPersistenceManager();
-	//
-	// try {
-	// Daybook diary = pm.getObjectById( Daybook.class, key );
-	//
-	// diary.setAuthor( author );
-	// diary.setWeather( weather );
-	// diary.setDate( new Date() );
-	// } finally {
-	// pm.close();
-	// }
-	//
-	// return new ModelAndView( "redirect:day_page" );
-	// }
-	//
-	// @RequestMapping(value = "/erase/{key}", method = RequestMethod.GET)
-	// public ModelAndView delete( @PathVariable String key, HttpServletRequest
-	// request, ModelMap model ) {
-	// PersistenceManager pm = PMF.get().getPersistenceManager();
-	//
-	// try {
-	// Daybook diary = pm.getObjectById( Daybook.class, key );
-	// pm.deletePersistent( diary );
-	// } finally {
-	// pm.close();
-	// }
-	//
-	// return new ModelAndView( "redirect:../day_page" );
-	// }
-	//
+	@RequestMapping(value = "/day_modify/{date}", method = RequestMethod.GET)
+	public String getUpdateDaybookPage( @PathVariable String date, HttpServletRequest request, ModelMap model ) {
+		UserService userService = UserServiceFactory.getUserService();
+		User user = userService.getCurrentUser();
+		String nickname = null;
+
+		if ( user != null ) {
+			nickname = user.getNickname();
+			if ( nickname.indexOf( "@" ) > 0 ) {
+				nickname = nickname.substring( 0, nickname.indexOf( "@" ) );
+			}
+		}
+
+		model.addAttribute( "date", date );
+		model.addAttribute( "nickname", nickname );
+
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+
+		Query q = pm.newQuery( Daybook.class );
+		q.setFilter( "date == dateParameter" );
+		q.declareParameters( "String dateParameter" );
+
+		try {
+			List < Daybook > results = (List < Daybook >) q.execute( date );
+
+			if ( results.isEmpty() ) {
+				model.addAttribute( "Daybook", null );
+			} else {
+				model.addAttribute( "Daybook", results.get( 0 ) );
+			}
+		} finally {
+			q.closeAll();
+			pm.close();
+		}
+
+		return "day_modify";
+	}
+
+	@RequestMapping(value = "/day_modify/{date}", method = RequestMethod.POST)
+	public ModelAndView update( @PathVariable String date, HttpServletRequest request, ModelMap model ) {
+		String weather = request.getParameter( "weather" );
+		String subject = request.getParameter( "subject" );
+		String content = request.getParameter( "content" );
+		String key = request.getParameter( "key" );
+
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+
+		try {
+			Daybook diary = pm.getObjectById( Daybook.class, key );
+
+			diary.setDate( date );
+			diary.setWeather( weather );
+			diary.setSubject( subject );
+			diary.setContent( content );
+			diary.setModified_date( new Date() );
+		} finally {
+			pm.close();
+		}
+
+		return new ModelAndView( "redirect:../day_page" );
+	}
+
+	@RequestMapping(value = "/erase/{key}", method = RequestMethod.POST)
+	public ModelAndView delete( @PathVariable String key, HttpServletRequest request, ModelMap model ) {
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		
+		log.info( "deleted" );
+
+		try {
+			Daybook diary = pm.getObjectById( Daybook.class, key );
+			pm.deletePersistent( diary );
+		} finally {
+			pm.close();
+		}
+
+		return new ModelAndView( "redirect:../day_page" );
+	}
+
 }
