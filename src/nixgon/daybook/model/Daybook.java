@@ -15,6 +15,9 @@ public class Daybook {
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
 	private Key key;
+	
+	@Persistent
+	private String author;
 
 	@Persistent
 	private String date;
@@ -37,6 +40,14 @@ public class Daybook {
 
 	public void setKey( Key key ) {
 		this.key = key;
+	}
+	
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor( String author ) {
+		this.author = author;
 	}
 
 	public String getWeather() {

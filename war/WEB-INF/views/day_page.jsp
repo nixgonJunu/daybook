@@ -7,6 +7,7 @@
 <%
 	String logout_url = (String) request.getAttribute( "logout_url" );
 	String nickname = (String) request.getAttribute( "nickname" );
+	String author = (String) request.getAttribute( "author" );
 	String today = (String) request.getAttribute( "today" );
 	String yesterday = (String) request.getAttribute( "yesterday" );
 
@@ -67,34 +68,38 @@
 	<%=nickname%>
 	<a href='<%=logout_url%>'> LogOut </a><br>
 	<div class="main_container">
-		<form method="get">
+		<form method="post">
+		<input type="hidden" name="nickname" id="nickname" value="<%= nickname %>" />
+		<input type="hidden" name="author" id="author" value="<%= author %>" />
 		<div class="left_page">
 			<%
 				if (yesterdayDaybook != null) {
 			%>
-			<input type="submit" formaction="erase/<%= KeyFactory.keyToString( yesterdayKey ) %>" formmethod="post" value="Erase" />
+			<input type="submit" formaction="erase/<%= KeyFactory.keyToString( yesterdayKey ) %>" value="Erase" />
 			<%
 				}
 			%>
-			<input type="submit" formaction="<%= redirectYesterdayURL %>/<%= yesterday %>" value="<%= yesterdayBtnMsg %>" />
-			<div class="content" id="date"><h3>Date, <%= yesterdayYear %> / <%= yesterdayMonth %> / <%= yesterdayDay %></h3></div>
-			<div class="content" id="weather"><h3>Weather, <%= yesterdayWeather %></h3></div>
-			<div class="content" id="subject"><h3>Subject, <%= yesterdaySubject %></h3></div>
-			<div class="content" id="content"> <%= yesterdayContent %></div>
+			<input type="submit" formaction="<%= redirectYesterdayURL %>/yesterday" value="<%= yesterdayBtnMsg %>" />
+			<input type="hidden" name="yesterday" id="yesterday" value="<%= yesterday %>" />
+			<div class="content" id="date"><h3><%= yesterdayYear %> / <%= yesterdayMonth %> / <%= yesterdayDay %></h3></div>
+			<div class="content" id="weather"><h3><%= yesterdayWeather %></h3></div>
+			<div class="content" id="subject"><h3><%= yesterdaySubject %></h3></div>
+			<div class="content"><textarea id="yesterdayContent" disabled="disabled"><%= yesterdayContent %></textarea></div>
 		</div>
 		<div class="right_page">
 			<%
 				if (todayDaybook != null) {
 			%>
-			<input type="submit" formaction="erase/<%= KeyFactory.keyToString( todayKey ) %>" formmethod="post" value="Erase" />
+			<input type="submit" formaction="erase/<%= KeyFactory.keyToString( todayKey ) %>" value="Erase" />
 			<%
 				}
 			%>
-			<input type="submit" formaction="<%= redirectTodayURL %>/<%= today %>" value="<%= todayBtnMsg %>" />
-			<div class="content" id="date"><h3>Date, <%= todayYear %> / <%= todayMonth %> / <%= todayDay %></h3></div>
-			<div class="content" id="weather"><h3>Weather, <%= todayWeather %></h3></div>
-			<div class="content" id="subject"><h3>Subject, <%= todaySubject %></h3></div>
-			<div class="content" id="content"><%= todayContent %></div>
+			<input type="submit" formaction="<%= redirectTodayURL %>/today" value="<%= todayBtnMsg %>" />
+			<input type="hidden" name="today" id="today" value="<%= today %>" />
+			<div class="content" id="date"><h3><%= todayYear %> / <%= todayMonth %> / <%= todayDay %></h3></div>
+			<div class="content" id="weather"><h3><%= todayWeather %></h3></div>
+			<div class="content" id="subject"><h3><%= todaySubject %></h3></div>
+			<div class="content"><textarea id="todayContent" disabled="disabled"><%= todayContent %></textarea></div>
 		</div>
 		</form>
 	</div>

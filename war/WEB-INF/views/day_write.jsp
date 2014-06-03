@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <%
 	String nickname = (String) request.getAttribute( "nickname" );
+	String author = (String) request.getAttribute( "author" );
 	String date = (String) request.getAttribute( "date" );
 	String year = date.substring( 0, 4 );
 	String month = date.substring( 4, 6 );
@@ -19,6 +20,7 @@
 	<div class="main_container">
 	<form method="post" action="./<%= date %>">
 		<h1><%= year %> / <%= month %> / <%= day %></h1>
+		<input type="hidden" name="author" id="author" value="<%= author %>" />
 		<input type="submit" title="Write" value="Write" />
 		<input type="submit" formaction="../day_page" title="Cancel" value="Cancel" /><br>
 		<div class="weather">

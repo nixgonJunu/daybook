@@ -16,18 +16,21 @@ body {
 .subject {
 	padding: 16px;
 	width: 60%;
+	height: 100%;
 	font-size: x-large;
 	background: clear;
 	background-color: #0055cc;
 	border: 0;
+	resize: none;
 }
 
 .content {
 	padding: 16px;
 	width: 60%;
-	height: 2000px;
+	height: 1000px;
 	font-size: large;
 	background: clear;
 	background-color: #0055cc;
 	border: 0;
+	resize: none;
 }

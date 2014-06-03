@@ -28,9 +28,6 @@ import com.google.appengine.api.users.UserServiceFactory;
 public class DaybookController {
 	private static final Logger log = Logger.getLogger( DaybookController.class.getName() );
 
-	private static String yesterday = null;
-	private static String today = null;
-
 	@RequestMapping("/login")
 	public String loginUser() {
 		UserService userService = UserServiceFactory.getUserService();
@@ -44,37 +41,43 @@ public class DaybookController {
 	}
 
 	@RequestMapping(value = "/day_page")
-	public String listDaybook( ModelMap model ) {
+	public String getDaybook( ModelMap model ) {
 		UserService userService = UserServiceFactory.getUserService();
 		User user = userService.getCurrentUser();
 		String nickname = null;
-
+		String author = null;
+		
 		DateFormat sdFormat = new SimpleDateFormat( "yyyyMMdd" );
 		Date nowDate = new Date();
-		today = sdFormat.format( nowDate );
+		String today = sdFormat.format( nowDate );
 
 		Calendar day = Calendar.getInstance();
 		day.add( Calendar.DATE, -1 );
-		yesterday = new SimpleDateFormat( "yyyyMMdd" ).format( day.getTime() );
+		String yesterday = new SimpleDateFormat( "yyyyMMdd" ).format( day.getTime() );
 
 		if ( user != null ) {
-			nickname = user.getNickname();
-			if ( nickname.indexOf( "@" ) > 0 ) {
-				nickname = nickname.substring( 0, nickname.indexOf( "@" ) );
+			author = user.getNickname();
+			if ( author.indexOf( "@" ) > 0 ) {
+				nickname = author.substring( 0, author.indexOf( "@" ) );
+			}
+			
+			if (nickname == null) {
+				nickname = author;
 			}
 		}
 
 		model.addAttribute( "today", today );
 		model.addAttribute( "yesterday", yesterday );
 		model.addAttribute( "nickname", nickname );
+		model.addAttribute( "author", author );
 		model.addAttribute( "logout_url", userService.createLogoutURL( "../login" ) );
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Query qToday = pm.newQuery( Daybook.class );
-		qToday.setFilter( "date == '" + today + "'" );
+		qToday.setFilter( "date == '" + today + "' && author == '" + author + "'" );
 		Query qYesterday = pm.newQuery( Daybook.class );
-		qYesterday.setFilter( "date == '" + yesterday + "'" );
-
+		qYesterday.setFilter( "date == '" + yesterday + "' && author == '" + author + "'" );
+		
 		List < Daybook > resultToday = null;
 		List < Daybook > resultYesterday = null;
 
@@ -102,39 +105,43 @@ public class DaybookController {
 		return "day_page";
 	}
 
-	@RequestMapping(value = "/day_write/{date}", method = RequestMethod.GET)
-	public String getAddDaybookPage( @PathVariable String date, ModelMap model ) {
-		UserService userService = UserServiceFactory.getUserService();
-		User user = userService.getCurrentUser();
-		String nickname = null;
+	@RequestMapping(value = "/day_write/yesterday", method = RequestMethod.POST)
+	public String writeYesterdayDaybook ( HttpServletRequest request, ModelMap model ) {
+		String nickname = request.getParameter( "nickname" );
+		String author = request.getParameter( "author" );
+		String yesterday = request.getParameter( "yesterday" );
 
-		if ( user != null ) {
-			nickname = user.getNickname();
-			if ( nickname.indexOf( "@" ) > 0 ) {
-				nickname = nickname.substring( 0, nickname.indexOf( "@" ) );
-			}
-		}
-
-		model.addAttribute( "date", date );
+		model.addAttribute( "date", yesterday );
 		model.addAttribute( "nickname", nickname );
+		model.addAttribute( "author", author );
+
+		return "day_write";
+	}
+
+	@RequestMapping(value = "/day_write/today", method = RequestMethod.POST)
+	public String writeTodayDaybook ( HttpServletRequest request, ModelMap model ) {
+		String nickname = request.getParameter( "nickname" );
+		String author = request.getParameter( "author" );
+		String today = request.getParameter( "today" );
+
+		model.addAttribute( "date", today );
+		model.addAttribute( "nickname", nickname );
+		model.addAttribute( "author", author );
 
 		return "day_write";
 	}
 
 	@RequestMapping(value = "/day_write/{date}", method = RequestMethod.POST)
-	public ModelAndView add( @PathVariable String date, HttpServletRequest request, ModelMap model ) {
+	public ModelAndView writeDaybook( @PathVariable String date, HttpServletRequest request, ModelMap model ) {
 		String weather = request.getParameter( "weather" );
 		String subject = request.getParameter( "subject" );
 		String content = request.getParameter( "content" );
-
-		log.info( date );
-		log.info( weather );
-		log.info( subject );
-		log.info( content );
+		String author = request.getParameter( "author" );
 
 		Daybook diary = new Daybook();
 
 		diary.setDate( date );
+		diary.setAuthor( author );
 		diary.setWeather( weather );
 		diary.setSubject( subject );
 		diary.setContent( content );
@@ -150,24 +157,44 @@ public class DaybookController {
 		return new ModelAndView( "redirect:../day_page" );
 	}
 
-	@RequestMapping(value = "/day_modify/{date}", method = RequestMethod.GET)
-	public String getUpdateDaybookPage( @PathVariable String date, HttpServletRequest request, ModelMap model ) {
-		UserService userService = UserServiceFactory.getUserService();
-		User user = userService.getCurrentUser();
-		String nickname = null;
-
-		if ( user != null ) {
-			nickname = user.getNickname();
-			if ( nickname.indexOf( "@" ) > 0 ) {
-				nickname = nickname.substring( 0, nickname.indexOf( "@" ) );
-			}
-		}
+	@RequestMapping(value = "/day_modify/yesterday", method = RequestMethod.POST)
+	public String modifyYesterdayDaybook( HttpServletRequest request, ModelMap model ) {
+		String nickname = request.getParameter( "nickname" );
+		String date = request.getParameter( "yesterday" );
 
 		model.addAttribute( "date", date );
 		model.addAttribute( "nickname", nickname );
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
+		Query q = pm.newQuery( Daybook.class );
+		q.setFilter( "date == dateParameter" );
+		q.declareParameters( "String dateParameter" );
 
+		try {
+			List < Daybook > results = (List < Daybook >) q.execute( date );
+
+			if ( results.isEmpty() ) {
+				model.addAttribute( "Daybook", null );
+			} else {
+				model.addAttribute( "Daybook", results.get( 0 ) );
+			}
+		} finally {
+			q.closeAll();
+			pm.close();
+		}
+
+		return "day_modify";
+	}
+
+	@RequestMapping(value = "/day_modify/today", method = RequestMethod.POST)
+	public String modifyTodayDaybook( HttpServletRequest request, ModelMap model ) {
+		String nickname = request.getParameter( "nickname" );
+		String date = request.getParameter( "today" );
+
+		model.addAttribute( "date", date );
+		model.addAttribute( "nickname", nickname );
+
+		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Query q = pm.newQuery( Daybook.class );
 		q.setFilter( "date == dateParameter" );
 		q.declareParameters( "String dateParameter" );
@@ -189,10 +216,11 @@ public class DaybookController {
 	}
 
 	@RequestMapping(value = "/day_modify/{date}", method = RequestMethod.POST)
-	public ModelAndView update( @PathVariable String date, HttpServletRequest request, ModelMap model ) {
+	public ModelAndView modifyDaybook( @PathVariable String date, HttpServletRequest request, ModelMap model ) {
 		String weather = request.getParameter( "weather" );
 		String subject = request.getParameter( "subject" );
 		String content = request.getParameter( "content" );
+		String author = request.getParameter( "author" );
 		String key = request.getParameter( "key" );
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -201,6 +229,7 @@ public class DaybookController {
 			Daybook diary = pm.getObjectById( Daybook.class, key );
 
 			diary.setDate( date );
+			diary.setAuthor( author );
 			diary.setWeather( weather );
 			diary.setSubject( subject );
 			diary.setContent( content );
@@ -215,8 +244,6 @@ public class DaybookController {
 	@RequestMapping(value = "/erase/{key}", method = RequestMethod.POST)
 	public ModelAndView delete( @PathVariable String key, HttpServletRequest request, ModelMap model ) {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
-		
-		log.info( "deleted" );
 
 		try {
 			Daybook diary = pm.getObjectById( Daybook.class, key );
