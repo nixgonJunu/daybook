@@ -5,32 +5,32 @@ body {
 }
 
 .main_container {
-	margin: 0 auto;
-	background-color: #2277ff;
+	margin-top: 50px;
+	padding: 16px;
+	background-color: #dcdcdc;
 }
 
 .weather {
-	background-color: #2277ff;
+	background-color: #dcdcdc;
 }
 
 .subject {
 	padding: 16px;
-	width: 60%;
-	height: 100%;
+	width: 90%;
 	font-size: x-large;
 	background: clear;
-	background-color: #0055cc;
+	background-color: #dcdcdc;
 	border: 0;
 	resize: none;
 }
 
 .content {
 	padding: 16px;
-	width: 60%;
-	height: 1000px;
+	width: 90%;
+	height: 600px;
 	font-size: large;
 	background: clear;
-	background-color: #0055cc;
+	background-color: #dcdcdc;
 	border: 0;
 	resize: none;
 }

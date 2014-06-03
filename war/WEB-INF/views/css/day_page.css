@@ -5,24 +5,20 @@ body {
 }
 
 .main_container {
-	margin: 0 auto;
+	margin-top: 50px;
+	padding: 16px;
 	background-color: #2277ff;
 }
 
-.left_page {
-	margin: 8px;
+.yesterdayDaybook {
+	margin-top: 16px;
 	padding: 16px;
-	width: 40%;
 	background-color: #dcdcdc;
-	display: inline-block;
 }
 
-.right_page {
-	margin: 8px;
+.todayDaybook {
 	padding: 16px;
-	width: 40%;
 	background-color: #efefef;
-	display: inline-block;
 }
 
 .content {
@@ -33,7 +29,6 @@ body {
 	padding: 16px;
 	font-size: large;
 	background: clear;
-	height: 1000px;
 	width: 90%;
 	background-color: #dcdcdc;
 	color: black;
@@ -46,7 +41,6 @@ body {
 	font-size: large;
 	background: clear;
 	width: 90%;
-	height: 1000px;
 	background-color: #efefef;
 	color: black;
 	border: 0;

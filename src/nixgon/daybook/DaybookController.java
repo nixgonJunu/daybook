@@ -2,7 +2,6 @@ package nixgon.daybook;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -51,12 +50,8 @@ public class DaybookController {
 		Date nowDate = new Date();
 		String today = sdFormat.format( nowDate );
 
-		Calendar day = Calendar.getInstance();
-		day.add( Calendar.DATE, -1 );
-		String yesterday = new SimpleDateFormat( "yyyyMMdd" ).format( day.getTime() );
-
 		if ( user != null ) {
-			author = user.getNickname();
+			author = user.getEmail();
 			if ( author.indexOf( "@" ) > 0 ) {
 				nickname = author.substring( 0, author.indexOf( "@" ) );
 			}
@@ -67,7 +62,6 @@ public class DaybookController {
 		}
 
 		model.addAttribute( "today", today );
-		model.addAttribute( "yesterday", yesterday );
 		model.addAttribute( "nickname", nickname );
 		model.addAttribute( "author", author );
 		model.addAttribute( "logout_url", userService.createLogoutURL( "../login" ) );
@@ -75,47 +69,23 @@ public class DaybookController {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Query qToday = pm.newQuery( Daybook.class );
 		qToday.setFilter( "date == '" + today + "' && author == '" + author + "'" );
-		Query qYesterday = pm.newQuery( Daybook.class );
-		qYesterday.setFilter( "date == '" + yesterday + "' && author == '" + author + "'" );
 		
 		List < Daybook > resultToday = null;
-		List < Daybook > resultYesterday = null;
 
 		try {
 			resultToday = (List < Daybook >) qToday.execute();
-			resultYesterday = (List < Daybook >) qYesterday.execute();
 
 			if ( resultToday.isEmpty() ) {
 				model.addAttribute( "todayDaybook", null );
 			} else {
 				model.addAttribute( "todayDaybook", resultToday.get( 0 ) );
 			}
-
-			if ( resultYesterday.isEmpty() ) {
-				model.addAttribute( "yesterdayDaybook", null );
-			} else {
-				model.addAttribute( "yesterdayDaybook", resultYesterday.get( 0 ) );
-			}
 		} finally {
 			qToday.closeAll();
-			qYesterday.closeAll();
 			pm.close();
 		}
 		
 		return "day_page";
-	}
-
-	@RequestMapping(value = "/day_write/yesterday", method = RequestMethod.POST)
-	public String writeYesterdayDaybook ( HttpServletRequest request, ModelMap model ) {
-		String nickname = request.getParameter( "nickname" );
-		String author = request.getParameter( "author" );
-		String yesterday = request.getParameter( "yesterday" );
-
-		model.addAttribute( "date", yesterday );
-		model.addAttribute( "nickname", nickname );
-		model.addAttribute( "author", author );
-
-		return "day_write";
 	}
 
 	@RequestMapping(value = "/day_write/today", method = RequestMethod.POST)
@@ -157,46 +127,18 @@ public class DaybookController {
 		return new ModelAndView( "redirect:../day_page" );
 	}
 
-	@RequestMapping(value = "/day_modify/yesterday", method = RequestMethod.POST)
-	public String modifyYesterdayDaybook( HttpServletRequest request, ModelMap model ) {
-		String nickname = request.getParameter( "nickname" );
-		String date = request.getParameter( "yesterday" );
-
-		model.addAttribute( "date", date );
-		model.addAttribute( "nickname", nickname );
-
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		Query q = pm.newQuery( Daybook.class );
-		q.setFilter( "date == dateParameter" );
-		q.declareParameters( "String dateParameter" );
-
-		try {
-			List < Daybook > results = (List < Daybook >) q.execute( date );
-
-			if ( results.isEmpty() ) {
-				model.addAttribute( "Daybook", null );
-			} else {
-				model.addAttribute( "Daybook", results.get( 0 ) );
-			}
-		} finally {
-			q.closeAll();
-			pm.close();
-		}
-
-		return "day_modify";
-	}
-
 	@RequestMapping(value = "/day_modify/today", method = RequestMethod.POST)
 	public String modifyTodayDaybook( HttpServletRequest request, ModelMap model ) {
 		String nickname = request.getParameter( "nickname" );
 		String date = request.getParameter( "today" );
+		String author = request.getParameter( "author" );
 
 		model.addAttribute( "date", date );
 		model.addAttribute( "nickname", nickname );
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Query q = pm.newQuery( Daybook.class );
-		q.setFilter( "date == dateParameter" );
+		q.setFilter( "date == dateParameter && author == '" + author + "'" );
 		q.declareParameters( "String dateParameter" );
 
 		try {
@@ -237,6 +179,7 @@ public class DaybookController {
 		} finally {
 			pm.close();
 		}
+		log.info("33333");
 
 		return new ModelAndView( "redirect:../day_page" );
 	}

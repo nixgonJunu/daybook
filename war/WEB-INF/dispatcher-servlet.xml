@@ -25,4 +25,5 @@
 	<!-- Static files -->
 	<mvc:resources location="/WEB-INF/views/css/" mapping="/css/**"/>
 	<mvc:resources location="/WEB-INF/views/js/" mapping="/js/**"/>
+	<mvc:resources location="/WEB-INF/views/fonts/" mapping="/fonts/**"/>
 </beans>
