@@ -11,7 +11,7 @@
 %>
 <html>
 <head>
-<link type="text/css" rel="stylesheet" href="../css/day_write.css">
+<link type="text/css" rel="stylesheet" href="./css/day_write.css">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><%=nickname %>'s Daybook - Day Writing</title>
 <link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
@@ -48,6 +48,15 @@ function confirmCancel() {
 		document.writeForm.submit();
 	}
 }
+
+function resize(obj) {
+	obj.style.height = "1px";
+	obj.style.height = (20+obj.scrollHeight)+"px";
+}
+
+window.onload = function() {
+	resize($("textarea#content").get(0));
+}
 // -->
 </script>
 </head>
@@ -55,10 +64,10 @@ function confirmCancel() {
 	<div class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
-          <a class="navbar-brand" href="#">일기 수정하기</a>
+          <a class="navbar-brand" href="#">일기 쓰기</a>
         </div> 
         <div class="collapse navbar-collapse navbar-right">
-		<form method="post" name="writeForm" action="./<%= date %>" class="navbar-form">
+		<form method="post" name="writeForm" action="day_write/<%= date %>" class="navbar-form">
 		  <input type="hidden" name="author" id="author" value="<%= author %>" />
 		  <input type="button" class="btn btn-danger" title="Cancel" onclick="confirmCancel()" value="지우기" />
 		  <input type="button" class="btn btn-success" title="Modify" onclick="confirmWrite()" value="쓰기" />
@@ -74,18 +83,25 @@ function confirmCancel() {
 	<div class="main_container">
 		<h1><%= year %> / <%= month %> / <%= day %></h1>
 		<div class="weather">
-			<input type="radio" class="weather_radio" name="weather" value="기억 안남" checked="checked"/>기억 안남
-			<input type="radio" class="weather_radio" name="weather" value="맑았음" />맑았음
-			<input type="radio" class="weather_radio" name="weather" value="비가 내렸음" />비가 내렸음
-			<input type="radio" class="weather_radio" name="weather" value="흐렸음" />흐렸음
-			<input type="radio" class="weather_radio" name="weather" value="눈이 내렸음" />눈이 내렸음
+			<h3>
+			<input type="radio" class="weather_radio" name="weather" value="기억 안남" checked="checked" />
+			<label for="weather">기억 안남</label>
+			<input type="radio" class="weather_radio" name="weather" value="맑았음" />
+			<label for="weather">맑았음</label>
+			<input type="radio" class="weather_radio" name="weather" value="비가 내렸음" />
+			<label for="weather">비가 내렸음</label>
+			<input type="radio" class="weather_radio" name="weather" value="흐렸음" />
+			<label for="weather">흐렸음</label>
+			<input type="radio" class="weather_radio" name="weather" value="눈이 내렸음" />
+			<label for="weather">눈이 내렸음</label>
+			</h3>
 		</div>
 		<textarea class="subject" name="subject" id="subject" rows="1" maxlength="80" placeholder="제목"></textarea><br>
-		<textarea class="content" name="content" id="content" maxlength="2000" placeholder="내용"></textarea>
+		<textarea class="content" name="content" id="content" maxlength="2000" placeholder="내용" onkeyup="resize(this)"></textarea>
 	</div>
 	</div>
     
-    <script src="../js/jquery.js"></script>
-    <script src="../js/bootstrap.min.js"></script>
+    <script src="./js/jquery.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
 </body>
 </html>

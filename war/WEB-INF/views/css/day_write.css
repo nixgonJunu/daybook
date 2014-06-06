@@ -8,15 +8,16 @@ body {
 	margin-top: 50px;
 	padding: 16px;
 	background-color: #dcdcdc;
+	height: 100%;
 }
 
 .weather {
-	background-color: #dcdcdc;
+	width: 100%;
 }
 
 .subject {
 	padding: 16px;
-	width: 90%;
+	width: 100%;
 	font-size: x-large;
 	background: clear;
 	background-color: #dcdcdc;
@@ -26,8 +27,7 @@ body {
 
 .content {
 	padding: 16px;
-	width: 90%;
-	height: 600px;
+	width: 100%;
 	font-size: large;
 	background: clear;
 	background-color: #dcdcdc;

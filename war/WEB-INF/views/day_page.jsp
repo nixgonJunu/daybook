@@ -15,7 +15,6 @@
 	String todayDay = today.substring( 6, 8 );
 
 	Daybook todayDaybook = (Daybook) request.getAttribute( "todayDaybook" );
-	
 	Key todayKey = null;
 
 	String todayBtnMsg = "쓰기";
@@ -23,11 +22,10 @@
 	String redirectTodayURL = "day_write";
 	String redirectTodayErase = "";
 	
-	if (todayDaybook != null) {
+	if ( todayDaybook != null ) {
+		todayKey = todayDaybook.getKey();
 		todayBtnMsg = "수정하기";
 		redirectTodayURL = "day_modify";
-		
-		todayKey = todayDaybook.getKey();
 		redirectTodayErase = "erase/" + KeyFactory.keyToString( todayKey );
 	}
 %>
@@ -45,6 +43,15 @@ function confirmErase() {
 	if (r == true) {
 		document.eraseForm.submit();
 	}
+}
+
+function resize(obj) {
+	obj.style.height = "1px";
+	obj.style.height = (20+obj.scrollHeight)+"px";
+}
+
+window.onload = function() {
+	resize($("textarea#todayContent").get(0));
 }
 // -->
 </script>
@@ -71,7 +78,8 @@ function confirmErase() {
           <form method="post" name="eraseForm" action="<%= redirectTodayErase %>" class="navbar-form navbar-right">
 			<input type="hidden" name="nickname" id="nickname" value="<%= nickname %>" />
 			<input type="hidden" name="author" id="author" value="<%= author %>" />
-			<input type="hidden" name="today" id="today" value="<%= today %>" />
+			<input type="hidden" name="date" id="today" value="<%= today %>" />
+			<input type="hidden" name="redirect_url" value="day_page" />
 			<%
 				if ( todayDaybook != null ) {
 			%>
@@ -79,7 +87,7 @@ function confirmErase() {
 			<%
 				}
 			%>
-			<input type="submit" class="btn btn-success" formaction="<%= redirectTodayURL %>/today" value="<%= todayBtnMsg %>" />
+			<input type="submit" class="btn btn-success" formaction="<%= redirectTodayURL %>" value="<%= todayBtnMsg %>" />
           </form>
         </div>
       </div>
@@ -87,21 +95,21 @@ function confirmErase() {
 
     <div class="container">
 	<div class="main_container">
-		<div class="todayDaybook" id="todayDaybook">
-			<div class="content" id="date"><h3><%= todayYear %> / <%= todayMonth %> / <%= todayDay %></h3></div>
-			<%
-				if ( todayDaybook != null ) {
-			%>
-			<div class="content" id="weather"><h3><%= todayDaybook.getWeather() %></h3></div>
-			<div class="content" id="subject"><h3><%= todayDaybook.getSubject() %></h3></div>
-			<div class="content"><textarea id="todayContent" disabled="disabled"><%= todayDaybook.getContent() %></textarea></div>
-			<%
-				} else {
-			%>
-			<div class="content" id="empty"><h3>일기가 없어요!</h3></div>
-			<%
-				}
-			%>
+		<div class="today_container">
+		<div class="content" id="date"><h3><%= todayYear %> / <%= todayMonth %> / <%= todayDay %></h3></div>
+		<%
+			if ( todayDaybook != null ) {
+		%>
+		<div class="content" id="weather"><h3><%= todayDaybook.getWeather() %></h3></div>
+		<div class="content" id="subject"><h3><%= todayDaybook.getSubject() %></h3></div>
+		<div class="content"><textarea id="todayContent" disabled="disabled"><%= todayDaybook.getContent() %></textarea></div>
+		<%
+			} else {
+		%>
+		<div class="content"><textarea id="todayContent" disabled="disabled" style="text-align: center;">일기가 없어요!</textarea></div>
+		<%
+			}
+		%>
 		</div>
 	</div>
     </div>

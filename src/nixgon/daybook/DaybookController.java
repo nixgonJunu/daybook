@@ -2,6 +2,7 @@ package nixgon.daybook;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
@@ -45,7 +46,7 @@ public class DaybookController {
 		User user = userService.getCurrentUser();
 		String nickname = null;
 		String author = null;
-		
+
 		DateFormat sdFormat = new SimpleDateFormat( "yyyyMMdd" );
 		Date nowDate = new Date();
 		String today = sdFormat.format( nowDate );
@@ -55,8 +56,8 @@ public class DaybookController {
 			if ( author.indexOf( "@" ) > 0 ) {
 				nickname = author.substring( 0, author.indexOf( "@" ) );
 			}
-			
-			if (nickname == null) {
+
+			if ( nickname == null ) {
 				nickname = author;
 			}
 		}
@@ -69,7 +70,7 @@ public class DaybookController {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Query qToday = pm.newQuery( Daybook.class );
 		qToday.setFilter( "date == '" + today + "' && author == '" + author + "'" );
-		
+
 		List < Daybook > resultToday = null;
 
 		try {
@@ -84,12 +85,12 @@ public class DaybookController {
 			qToday.closeAll();
 			pm.close();
 		}
-		
+
 		return "day_page";
 	}
 
-	@RequestMapping(value = "/day_write/today", method = RequestMethod.POST)
-	public String writeTodayDaybook ( HttpServletRequest request, ModelMap model ) {
+	@RequestMapping(value = "/day_write", method = RequestMethod.POST)
+	public String writeTodayDaybook( HttpServletRequest request, ModelMap model ) {
 		String nickname = request.getParameter( "nickname" );
 		String author = request.getParameter( "author" );
 		String today = request.getParameter( "today" );
@@ -127,14 +128,16 @@ public class DaybookController {
 		return new ModelAndView( "redirect:../day_page" );
 	}
 
-	@RequestMapping(value = "/day_modify/today", method = RequestMethod.POST)
+	@RequestMapping(value = "/day_modify", method = RequestMethod.POST)
 	public String modifyTodayDaybook( HttpServletRequest request, ModelMap model ) {
 		String nickname = request.getParameter( "nickname" );
-		String date = request.getParameter( "today" );
+		String date = request.getParameter( "date" );
 		String author = request.getParameter( "author" );
+		String redirect_url = request.getParameter( "redirect_url" );
 
 		model.addAttribute( "date", date );
 		model.addAttribute( "nickname", nickname );
+		model.addAttribute( "redirect_url", redirect_url );
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Query q = pm.newQuery( Daybook.class );
@@ -164,6 +167,7 @@ public class DaybookController {
 		String content = request.getParameter( "content" );
 		String author = request.getParameter( "author" );
 		String key = request.getParameter( "key" );
+		String redirect_url = request.getParameter( "redirect_url" );
 
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
@@ -180,11 +184,11 @@ public class DaybookController {
 			pm.close();
 		}
 
-		return new ModelAndView( "redirect:../day_page" );
+		return new ModelAndView( "redirect:../" + redirect_url );
 	}
 
 	@RequestMapping(value = "/erase/{key}", method = RequestMethod.POST)
-	public ModelAndView delete( @PathVariable String key, HttpServletRequest request, ModelMap model ) {
+	public ModelAndView eraseDaybook( @PathVariable String key, HttpServletRequest request, ModelMap model ) {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 
 		try {
@@ -195,6 +199,55 @@ public class DaybookController {
 		}
 
 		return new ModelAndView( "redirect:../day_page" );
+	}
+
+	@RequestMapping(value = "/last_page")
+	public String getLastPage( ModelMap model ) {
+		UserService userService = UserServiceFactory.getUserService();
+		User user = userService.getCurrentUser();
+		String nickname = null;
+		String author = null;
+
+		if ( user != null ) {
+			author = user.getEmail();
+			if ( author.indexOf( "@" ) > 0 ) {
+				nickname = author.substring( 0, author.indexOf( "@" ) );
+			}
+
+			if ( nickname == null ) {
+				nickname = author;
+			}
+		}
+
+		model.addAttribute( "nickname", nickname );
+		model.addAttribute( "author", author );
+		model.addAttribute( "logout_url", userService.createLogoutURL( "../login" ) );
+
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		Query q = pm.newQuery( Daybook.class );
+		q.setOrdering( "date descending" );
+		q.setFilter( "author == '" + author + "'" );
+
+		List < Daybook > results = null;
+
+		try {
+			results = (List < Daybook >) q.execute();
+
+			if ( results.isEmpty() ) {
+				model.addAttribute( "Daybooks", null );
+			} else if ( results.size() > 10 ) {
+				model.addAttribute( "Daybooks", results.subList( 0, 10 ) );
+				model.addAttribute( "DaybookSize", String.valueOf( results.size() ) );
+			} else {
+				model.addAttribute( "Daybooks", results );
+				model.addAttribute( "DaybookSize", String.valueOf( results.size() ) );
+			}
+		} finally {
+			q.closeAll();
+			pm.close();
+		}
+
+		return "last_page";
 	}
 
 }

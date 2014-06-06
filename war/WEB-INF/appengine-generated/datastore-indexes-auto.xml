@@ -1,4 +1,11 @@
-<!-- Indices written at Fri, 6 Jun 2014 15:18:22 KST -->
+<!-- Indices written at Fri, 6 Jun 2014 19:22:27 KST -->
 
-<datastore-indexes/>
+<datastore-indexes>
 
+    <!-- Used 2 times in query history -->
+    <datastore-index kind="Daybook" ancestor="false" source="auto">
+        <property name="author" direction="asc"/>
+        <property name="date" direction="desc"/>
+    </datastore-index>
+
+</datastore-indexes>
