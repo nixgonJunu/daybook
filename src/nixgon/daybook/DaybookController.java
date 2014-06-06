@@ -179,7 +179,6 @@ public class DaybookController {
 		} finally {
 			pm.close();
 		}
-		log.info("33333");
 
 		return new ModelAndView( "redirect:../day_page" );
 	}

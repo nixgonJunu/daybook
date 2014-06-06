@@ -37,17 +37,24 @@
 <script type="text/javascript">
 <!--
 function confirmModify() {
-	if ( $("textarea#subject").val() == "" ) {
+	var weather = $("input[name=weather]").filter(":checked").val();
+	var subject = $("textarea#subject").val();
+	var content = $("textarea#content").val();
+	if ( subject == "" ) {
 		alert("제목을 입력해주세요.");
 		
 		return;
 	}
 
-	if ( $("textarea#content").val() == "" ) {
+	if ( content == "" ) {
 		alert("내용을 입력해주세요.");
 		
 		return;
 	}
+
+	$("input#weather").val(weather);
+	$("input#subject").val(subject);
+	$("input#content").val(content);
 	
 	document.modifyForm.submit();
 }
@@ -74,6 +81,9 @@ function confirmCancel() {
 		  <input type="hidden" name="key" id="key" value="<%= KeyFactory.keyToString( daybook.getKey() ) %>" />
 		  <input type="button" class="btn btn-danger" title="Cancel" onclick="confirmCancel()" value="취소하기" />
 		  <input type="button" class="btn btn-success" title="Modify" onclick="confirmModify()" value="수정하기" />
+		  <input type="hidden" id="weather" name="weather" value="<%= daybook.getWeather() %>" />
+		  <input type="hidden" id="subject" name="subject" value="<%= daybook.getSubject() %>" />
+		  <input type="hidden" id="content" name="content" value="<%= daybook.getContent() %>" />
    		</form>
         </div>
       </div>

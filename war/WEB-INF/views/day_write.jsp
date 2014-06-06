@@ -18,17 +18,25 @@
 <script type="text/javascript">
 <!-- 
 function confirmWrite() {
-	if ( $("textarea#subject").val() == "" ) {
+	var weather = $("input[name=weather]").filter(":checked").val();
+	var subject = $("textarea#subject").val();
+	var content = $("textarea#content").val();
+	
+	if ( subject == "" ) {
 		alert("제목을 입력해주세요.");
 		
 		return;
 	}
 
-	if ( $("textarea#content").val() == "" ) {
+	if ( content == "" ) {
 		alert("내용을 입력해주세요.");
 		
 		return;
 	}
+
+	$("input#weather").val(weather);
+	$("input#subject").val(subject);
+	$("input#content").val(content);
 	
 	document.writeForm.submit();
 }
@@ -44,12 +52,27 @@ function confirmCancel() {
 </script>
 </head>
 <body>
+	<div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">일기 수정하기</a>
+        </div> 
+        <div class="collapse navbar-collapse navbar-right">
+		<form method="post" name="writeForm" action="./<%= date %>" class="navbar-form">
+		  <input type="hidden" name="author" id="author" value="<%= author %>" />
+		  <input type="button" class="btn btn-danger" title="Cancel" onclick="confirmCancel()" value="지우기" />
+		  <input type="button" class="btn btn-success" title="Modify" onclick="confirmWrite()" value="쓰기" />
+		  <input type="hidden" id="weather" name="weather" value="" />
+		  <input type="hidden" id="subject" name="subject" value="" />
+		  <input type="hidden" id="content" name="content" value="" />
+   		</form>
+        </div>
+      </div>
+    </div>
+    
+    <div class="container">
 	<div class="main_container">
-	<form method="post" name="writeForm" action="./<%= date %>">
 		<h1><%= year %> / <%= month %> / <%= day %></h1>
-		<input type="hidden" name="author" id="author" value="<%= author %>" />
-		<input type="button" class="btn btn-danger" title="Cancel" onclick="confirmCancel()" value="취소하기" />
-		<input type="button" class="btn btn-success" title="Write" onclick="confirmWrite()" value="저장하기" /><br>
 		<div class="weather">
 			<input type="radio" class="weather_radio" name="weather" value="기억 안남" checked="checked"/>기억 안남
 			<input type="radio" class="weather_radio" name="weather" value="맑았음" />맑았음
@@ -59,7 +82,7 @@ function confirmCancel() {
 		</div>
 		<textarea class="subject" name="subject" id="subject" rows="1" maxlength="80" placeholder="제목"></textarea><br>
 		<textarea class="content" name="content" id="content" maxlength="2000" placeholder="내용"></textarea>
-	</form>
+	</div>
 	</div>
     
     <script src="../js/jquery.js"></script>
